@@ -1,0 +1,117 @@
+﻿@model IEnumerable<OnTapDe7.Models.SanPham>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<OnTapDe7.Models.PhanLoai> phanLoais = ViewBag.pl;
+
+}
+
+<!-- New Arrivals -->
+
+<div class="new_arrivals">
+    <div class="container">
+        <div class="row">
+            <div class="col text-center">
+                <div class="section_title new_arrivals_title">
+                    <h2>New Arrivals</h2>
+                    <h3>Võ Gia Huy</h3>
+                </div>
+            </div>
+        </div>
+        <div class="row align-items-center">
+            <div class="col text-center">
+                <div class="new_arrivals_sorting">
+                    <ul class="arrivals_grid_sorting clearfix button-group filters-button-group">
+                        <li class="grid_sorting_button button d-flex flex-column justify-content-center align-items-center active is-checked" data-filter="*">Tất cả sản phẩm</li>
+                        @foreach (var i in phanLoais.ToList())
+                        {
+                            <li class="grid_sorting_button button d-flex flex-column justify-content-center align-items-center" data-filter=".women">@i.PhanLoaiChinh</li>
+
+                        }
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="row" id="displayProduct">
+            <div class="col">
+                <div class="product-grid" data-isotope='{ "itemSelector": ".product-item", "layoutMode": "fitRows" }'>
+
+                    <!-- Product 1 -->
+                    @foreach (var item in Model)
+                    {
+                        <div class="product-item men">
+                            <div class="product discount product_filter">
+                                <div class="product_image">
+                                    <img src="~/images/@item.AnhDaiDien" alt="">
+                                </div>
+                                <div class="favorite favorite_left"></div>
+                                <div class="product_bubble product_bubble_right product_bubble_red d-flex flex-column align-items-center"><span>-$20</span></div>
+                                <div class="product_info">
+                                    <h6 class="product_name"><a href="single.html">@item.TenSanPham</a></h6>
+                                    <div class="product_price">@item.GiaNhap</div>
+                                </div>
+                            </div>
+                            <div class="red_button add_to_cart_button"><a href="/Home/AddNewProduct">Thêm một sản phẩm mới</a></div>
+                        </div>
+                    }
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $(".grid_sorting_button").click(function () {
+            // Lấy giá trị hiển thị của phần tử được click
+            var phanLoaiValue = $(this).text();
+            var str = '';
+            console.log(phanLoaiValue);
+
+            $.ajax({
+                url: '@Url.Action("GetProductByCategory", "Home")',
+                type: "POST",
+                data: { phanLoai: phanLoaiValue },
+                success: function (data) {
+                    if (data.success) {
+
+                        $.each(data.sanPham, function (key, val) {
+                            var linkImage = "/images/" + val.AnhDaiDien;
+
+                            str += `<div class="product-item men">
+                            <div class="product discount product_filter">
+                                    <div class="product_image">
+                                        <img src="${linkImage}" alt="">
+                                    </div>
+                                    <div class="favorite favorite_left"></div>
+                                    <div class="product_bubble product_bubble_right product_bubble_red d-flex flex-column align-items-center"><span>-20</span></div>
+                                    <div class="product_info">
+                                        <h6 class="product_name"><a href=""> ${val.TenSanPham} </a></h6>
+                                        <div class="product_price">${val.GiaNhap}</div>
+                                    </div>
+                                </div>
+                                <div class="red_button add_to_cart_button"><a href="/Home/AddNewProduct">Thêm một sản phẩm mới</a></div>
+                            </div>`;
+
+                        });
+                        $('#displayProduct').html(str);
+                    }
+
+                },
+                error: function () {
+                    console.log('AJAX Error');
+                }
+            })
+        });
+    });
+</script>
+
+
